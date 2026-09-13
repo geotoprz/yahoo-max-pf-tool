@@ -1,0 +1,6 @@
+node_modules/
+.env
+.yahoo-token.json
+results/*.csv
+results/*.json
+!results/.gitkeep
