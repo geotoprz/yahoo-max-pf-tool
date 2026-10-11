@@ -33,10 +33,10 @@ So if Team A owns a player in Weeks 1–4 and trades him to Team B before Week 5
 
 - Node.js 20+
 - Yahoo Fantasy API access
-- A Yahoo Developer app authorized for Fantasy Sports **Read** access
+- A Yahoo Developer **Public Client** app authorized for Fantasy Sports **Read** access
 - The Yahoo account you authorize must be able to view league 30035
 
-Yahoo currently requires Fantasy API applications to be submitted/approved. Once Yahoo gives you the client ID/secret, the calculator is ready to run.
+Yahoo currently requires Fantasy API applications to be submitted/approved. Once Yahoo enables the app and gives you the Client ID, the calculator is ready to run. This project uses a Yahoo **Public Client**, so there is no Client Secret.
 
 ## Setup
 
@@ -49,13 +49,12 @@ Edit `.env`:
 
 ```env
 YAHOO_CLIENT_ID=your_client_id
-YAHOO_CLIENT_SECRET=your_client_secret
-YAHOO_REDIRECT_URI=oob
+YAHOO_REDIRECT_URI=https://localhost:3000/callback
 YAHOO_LEAGUE_ID=30035
 INCLUDE_IR=true
 ```
 
-`oob` is documented by Yahoo for clients without a browser callback. If your Yahoo app is configured with a specific callback URL instead, put that exact URL in `YAHOO_REDIRECT_URI`.
+`YAHOO_REDIRECT_URI` must exactly match the redirect URI registered in Yahoo Developer. For the app created for this project, use `https://localhost:3000/callback`.
 
 ## Authorize once
 
@@ -63,9 +62,9 @@ INCLUDE_IR=true
 npm run auth
 ```
 
-The script prints a Yahoo authorization URL. Open it, approve access, then paste the authorization code back into the terminal. Tokens are stored in `.yahoo-token.json`, which is gitignored.
+The script generates a fresh **PKCE** verifier/challenge and prints a Yahoo authorization URL. Open it and approve access. Yahoo will redirect to `https://localhost:3000/callback?...`. Because this is a CLI and no local HTTPS server is running, the browser may show a connection/certificate error after the redirect; that is expected. Copy the full URL from the address bar and paste it into the terminal.
 
-The script automatically refreshes expired access tokens using the refresh token.
+The script verifies the returned OAuth `state`, exchanges the authorization code using the PKCE `code_verifier`, and stores the resulting tokens in `.yahoo-token.json`, which is gitignored. It automatically refreshes expired access tokens using the refresh token. Public clients omit `client_secret` on both token exchange and refresh.
 
 ## Calculate Max PF
 
